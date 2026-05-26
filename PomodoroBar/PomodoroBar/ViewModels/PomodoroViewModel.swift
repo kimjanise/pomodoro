@@ -79,9 +79,22 @@ final class PomodoroViewModel: ObservableObject {
     var menuBarTitle: String {
         switch state {
         case .idle:
-            return "🍅 \(formatTime(selectedPreset.workDuration))"
+            return "\(sessionEmoji) \(formatTime(selectedPreset.workDuration))"
         case .working, .onBreak, .paused(previous: _):
-            return "🍅 \(formatTime(remainingSeconds))"
+            return "\(sessionEmoji) \(formatTime(remainingSeconds))"
+        }
+    }
+
+    var sessionEmoji: String {
+        switch state {
+        case .idle:
+            return "🍅"
+        case .working:
+            return "✏️"
+        case .onBreak:
+            return "🕑"
+        case .paused(let previous):
+            return previous == .working ? "✏️" : "🕑"
         }
     }
 
