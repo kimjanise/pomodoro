@@ -39,9 +39,9 @@ enum TimerPreset: CaseIterable, Equatable {
     var title: String {
         switch self {
         case .standard:
-            return "25/5"
+            return "25:5"
         case .extended:
-            return "50/10"
+            return "50:10"
         }
     }
 

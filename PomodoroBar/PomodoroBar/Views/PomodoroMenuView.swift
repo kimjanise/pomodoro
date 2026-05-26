@@ -6,38 +6,41 @@ struct PomodoroMenuView: View {
     @State private var displayedProgress: Double = 1
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top) {
-                Text(viewModel.statusText)
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.primary)
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .top) {
+                    Text(viewModel.statusText)
+                        .font(.custom("Chalkboard SE", size: 20))
+                        .foregroundStyle(.primary)
 
-                Spacer()
+                    Spacer()
 
-                Button {
-                    NSApplication.shared.terminate(nil)
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .frame(width: 18, height: 18)
-                        .contentShape(Rectangle())
+                    Button {
+                        NSApplication.shared.terminate(nil)
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 18, height: 18)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .help("Quit PomodoroBar")
                 }
-                .buttonStyle(.plain)
-                .help("Quit PomodoroBar")
-            }
 
-            Text(viewModel.displayedTime)
-                .font(.system(.largeTitle, design: .monospaced))
-                .fontWeight(.bold)
-                .foregroundStyle(.primary)
+                Text(viewModel.displayedTime)
+                    .font(.custom("Chalkboard SE", size: 34))
+                    .foregroundStyle(.primary)
+                    .padding(.vertical, -4)
+            }
 
             interactiveProgressBar
 
             controls
         }
         .frame(width: 260)
-        .padding()
+        .padding(.horizontal)
+        .padding(.vertical, 12)
     }
 
     private var isIdle: Bool {
@@ -101,12 +104,12 @@ struct PomodoroMenuView: View {
 
                 if let label {
                     Text(label)
-                        .font(.subheadline.weight(.semibold))
+                        .font(.custom("Chalkboard SE", size: 13))
                         .foregroundStyle(.white)
                 }
             }
         }
-        .frame(height: 16)
+        .frame(height: 20)
         .onAppear {
             displayedProgress = clampedProgress
         }
