@@ -66,17 +66,21 @@ struct PomodoroMenuView: View {
     }
 
     private var interactiveProgressBar: some View {
-        Group {
-            timerBar(label: viewModel.presetBarLabel)
-        }
-        .onTapGesture {
-            guard isIdle else {
-                return
+        timerBar(label: viewModel.presetBarLabel)
+            .overlay {
+                if isIdle {
+                    Button {
+                        viewModel.togglePreset()
+                    } label: {
+                        Rectangle()
+                            .fill(Color.clear)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
             }
-
-            viewModel.togglePreset()
-        }
-        .help(isIdle ? "Toggle between \(viewModel.selectedPreset.title) and the other preset" : "")
+            .help(isIdle ? "Toggle between \(viewModel.selectedPreset.title) and the other preset" : "")
     }
 
     private func timerBar(label: String?) -> some View {
