@@ -3,6 +3,7 @@ import SwiftUI
 
 struct PomodoroMenuView: View {
     @EnvironmentObject private var viewModel: PomodoroViewModel
+    @State private var displayedProgress: Double = 1
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -31,22 +32,12 @@ struct PomodoroMenuView: View {
                 .fontWeight(.bold)
                 .foregroundStyle(.primary)
 
-            ProgressView(value: viewModel.progress)
-                .progressViewStyle(.linear)
-
-            if isIdle {
-                presetToggle
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .top).combined(with: .opacity),
-                        removal: .move(edge: .top).combined(with: .opacity)
-                    ))
-            }
+            interactiveProgressBar
 
             controls
         }
         .frame(width: 260)
         .padding()
-        .animation(.easeInOut(duration: 0.2), value: isIdle)
     }
 
     private var isIdle: Bool {
@@ -74,21 +65,62 @@ struct PomodoroMenuView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var presetToggle: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Button {
-                viewModel.togglePreset()
-            } label: {
-                HStack {
-                    Text("Preset")
-                    Spacer()
-                    Text(viewModel.selectedPreset.title)
-                        .fontWeight(.semibold)
-                }
-                .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
+    private var interactiveProgressBar: some View {
+        Group {
+            timerBar(label: viewModel.presetBarLabel)
         }
+        .onTapGesture {
+            guard isIdle else {
+                return
+            }
+
+            viewModel.togglePreset()
+        }
+        .help(isIdle ? "Toggle between \(viewModel.selectedPreset.title) and the other preset" : "")
+    }
+
+    private func timerBar(label: String?) -> some View {
+        GeometryReader { geometry in
+            let fillWidth = geometry.size.width * displayedProgress
+
+            ZStack {
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .fill(Color(nsColor: .quaternaryLabelColor))
+
+                HStack(spacing: 0) {
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(Color.accentColor)
+                        .frame(width: fillWidth)
+
+                    Spacer(minLength: 0)
+                }
+
+                if let label {
+                    Text(label)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                }
+            }
+        }
+        .frame(height: 16)
+        .onAppear {
+            displayedProgress = clampedProgress
+        }
+        .onChange(of: viewModel.progress) { newValue in
+            let nextProgress = min(max(newValue, 0), 1)
+            let animation = nextProgress > displayedProgress
+                ? Animation.easeOut(duration: 0.35)
+                : Animation.linear(duration: 0.1)
+
+            withAnimation(animation) {
+                displayedProgress = nextProgress
+            }
+        }
+        .contentShape(Rectangle())
+    }
+
+    private var clampedProgress: Double {
+        min(max(viewModel.progress, 0), 1)
     }
 
     private func controlButton(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {

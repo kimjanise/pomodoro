@@ -121,6 +121,14 @@ final class PomodoroViewModel: ObservableObject {
         return max(0, min(1, remaining / total))
     }
 
+    var presetBarLabel: String? {
+        if case .idle = state {
+            return selectedPreset.title
+        }
+
+        return nil
+    }
+
     private var currentSessionDuration: Int {
         switch state {
         case .working:
